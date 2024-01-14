@@ -1,0 +1,20 @@
+---
+
+gittoken: ""
+git_repo: "https://{{gittoken}}@github.com/DawidNiezgodka/Kafka1-bench.git"
+compile_project: "YES"
+kafka_logs_path: "/home/kafka-logs/"
+relative_repository_path: "../../.."
+repository_root_directory: "{{ playbook_dir }}/../../.."
+bench_result_folder:
+benchmarker_home: "/home/user"
+user_name: "user"
+benchmark_project: "/home/{{user_name}}/Benchmark1"
+sdkman_script_install_url: http://get.sdkman.io
+sdkman_folder: '/home/{{user_name}}/.sdkman'
+result_name: 'kafka_tdd/kafka_2_2_0'
+user_home_path: '/home/user'
+datasender_heap: 1
+ansible_path: '/home/user/.sdkman/candidates/scala/current/bin:/home/user/.sdkman/candidates/sbt/current/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'
+scala_version: '2.12.18'
+

@@ -1,0 +1,7 @@
+
+- name: replace sending interval
+  replace:
+    path: '{{ benchmark_project }}/tools/commons/commons.conf'
+    regexp: '^sending-interval = .*$'
+    replace: 'sending-interval = {{ interval }}'
+  when: interval is defined

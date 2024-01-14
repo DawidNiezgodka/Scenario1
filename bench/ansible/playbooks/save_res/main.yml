@@ -1,0 +1,25 @@
+---
+- name: Check for JSON and upload to GCP Bucket
+  hosts: data-sender
+  vars:
+    directory_to_search: "{{ benchmark_project }}/tools/datasender/results"
+    gcp_bucket_path: "gs://bucket/{{ result_name }}.json"
+
+  tasks:
+
+    - name: Search for .json files in given directory
+      find:
+        paths: "{{ directory_to_search }}"
+        patterns: "*.json"
+        recurse: no
+      register: json_files
+
+    - name: Fail if no .json file exists
+      fail:
+        msg: "No .json files found in the given directory"
+      when: json_files.matched == 0
+
+    - name: Upload .json file to GCP bucket using gsutil
+      command: gsutil cp "{{ item.path }}" "{{ gcp_bucket_path }}"
+      with_items: "{{ json_files.files }}"
+      when: json_files.matched > 0

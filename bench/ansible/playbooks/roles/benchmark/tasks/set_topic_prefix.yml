@@ -1,0 +1,7 @@
+
+- name: replace topic prefix
+  replace:
+    path: '{{ benchmark_project }}/tools/commons/commons.conf'
+    regexp: '^topic-prefix = ".*"$'
+    replace: 'topic-prefix = "{{ prefix }}"'
+  when: prefix is defined

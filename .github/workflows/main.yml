@@ -1,0 +1,46 @@
+name: CI-CB-CD pipeline
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  CI:
+    name: continuous integration
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  CB:
+    name: continuous benchmarking
+    needs: [CI]
+    permissions:
+      contents: write
+      id-token: write
+    uses: DawidNiezgodka/CB-Framework/.github/workflows/continuous_benchmarking.yml@main
+    with:
+      bench_dir: bench/
+      number_of_metrics_to_evaluate: 1
+      infra_instance_meta_public_key: terraform/publickeys/public_key.pub
+      infra_custom_inventory_file_path: terraform/templates/hosts.tpl
+      infra_vars_file_path: terraform/input.tfvars
+      infra_destroy_after_run: true
+      snr_extra_file_uploaded_name: updated_all_file
+      snr_extra_file_name: all
+      snr_extra_file_target_path: ./bench/ansible/group_vars/all
+      snr_execution_order: setup, init, run, save_res
+      snr_requirements: requirements.yml
+      eval_metrics_to_evaluate: mb-send-rate
+      eval_evaluation_method: trend_detection_deltas
+      eval_trend_thresholds: 10
+      eval_bucket_result_file_path: kafka_tdd/kafka_2_2_0.json
+      eval_comment_to_commit: on
+      eval_alert_users_if_bench_failed: '@DawidNiezgodka'
+      eval_link_to_templated_gh_page_with_results: 'https://dawidniezgodka.github.io/Scenario1/'
+    secrets: inherit
+
+  CD:
+    name: continuous deployment
+    needs: [CB]
+    uses: ./.github/workflows/cd.yml

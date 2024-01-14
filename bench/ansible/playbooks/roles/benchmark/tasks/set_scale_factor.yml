@@ -1,0 +1,7 @@
+
+- name: replace scale factor
+  replace:
+    path: '{{ benchmark_project }}/tools/commons/commons.conf'
+    regexp: '^scale-factor = .*$'
+    replace: 'scale-factor = {{ sf }}'
+  when: sf is defined

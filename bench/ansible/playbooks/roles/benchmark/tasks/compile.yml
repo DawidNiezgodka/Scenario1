@@ -1,0 +1,8 @@
+---
+- name: Compile complete project
+  shell: sbt assembly
+  args:
+    chdir: "{{ benchmark_project }}"
+    executable: /bin/bash
+  environment:
+    PATH: "{{ ansible_path }}"

@@ -1,0 +1,130 @@
+
+- name: Install openjdk-8-jdk on all nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Install openjdk-8-jdk
+      apt:
+        name: openjdk-8-jdk
+        state: present
+        update_cache: yes
+
+- name: Setup zookeeper
+  hosts: zookeeper-nodes
+  roles:
+    - role: sleighzy.zookeeper
+  vars:
+      zookeeper_servers:
+        - kafka1
+        - kafka2
+        - kafka3
+      zookeeper_mirror: https://archive.apache.org/dist/zookeeper
+      zookeeper_version: 3.6.4
+      zookeeper_package: apache-zookeeper-3.6.4-bin.tar.gz
+      zookeeper_servers_use_inventory_hostname: true
+
+- name: Setup environment on data-sender
+  hosts: data-sender
+  gather_facts: true
+  vars:
+    username: "{{ user_name }}"
+  tasks:
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+
+    - name: Install git
+      apt:
+        name: git
+        state: present
+        update_cache: yes
+
+    - name: Install unzip and zip
+      apt:
+        name:
+          - unzip
+          - zip
+        state: present
+        update_cache: yes
+
+    - name: Install sdkman and its dependencies
+      become: false
+      shell: |
+        curl -s "https://get.sdkman.io" | bash
+
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ username }}"
+      environment:
+        HOME: "/home/{{ username }}"
+
+    - name: Install Scala 2.12.8 using sdkman
+      become: false
+      shell: |
+        source "/home/{{ username }}/.sdkman/bin/sdkman-init.sh"
+        sdk install scala {{ scala_version }}
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ username }}"
+      environment:
+        HOME: "/home/{{ username }}"
+
+    - name: Check Scala version
+      shell: |
+        source "/home/{{ username }}/.sdkman/bin/sdkman-init.sh"
+        sdk install scala {{ scala_version }}
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ username }}"
+      environment:
+        HOME: "/home/{{ username }}"
+      register: scala_version
+      changed_when: False
+
+    - name: Debug output
+      debug:
+        msg: "{{ scala_version.stdout }}"
+
+    - name: Install sbt using sdkman
+      become: false
+      shell: |
+        source "/home/{{ username }}/.sdkman/bin/sdkman-init.sh"
+        sdk install sbt
+      args:
+        executable: /bin/bash
+        chdir: "/home/{{ username }}"
+      environment:
+        HOME: "/home/{{ username }}"
+
+
+- name: Setup kafka
+  hosts: kafka-nodes
+  roles:
+    - role: sleighzy.kafka
+  vars:
+    kafka_download_base_url: https://archive.apache.org/dist/kafka
+    kafka_broker_id: "{{ inventory_hostname.split('kafka')[-1] }}"
+    kafka_version: "{{ kafka_ver }}"
+    kafka_scala_version: "{{ scala_minor }}"
+    kafka_start: no
+    log_segment_bytes: 500000000
+    kafka_server_config_params:
+      log.retention.ms: 15000
+      log.roll.ms: 300000
+      log.retention.check.interval.ms: 5000
+
+
+- name: Add advertised.listeners to server.properties
+  hosts: kafka-nodes
+  tasks:
+    - name: Add advertised.listeners line
+      lineinfile:
+        path: /etc/kafka/server.properties
+        line: "advertised.listeners=PLAINTEXT://{{ansible_ssh_host}}:9092"
+        create: no
+
+    - name: Start kafka service
+      service:
+        name: kafka
+        state: started
+        enabled: yes

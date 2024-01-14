@@ -1,0 +1,14 @@
+kafka-producer-config.bootstrap-servers = "{% for host in groups['kafka-nodes'] %}{{ hostvars[host]['ansible_host'] }}:9092{% if not loop.last %},{% endif %}{% endfor %}"
+kafka-producer-config.key-serializer-class = "org.apache.kafka.common.serialization.StringSerializer"
+kafka-producer-config.value-serializer-class = "org.apache.kafka.common.serialization.StringSerializer"
+kafka-producer-config.acks = 1
+kafka-producer-config.batch-size = 16384 # default value in bytes
+kafka-producer-config.buffer-memory-size = 33554432 # default value in bytes
+kafka-producer-config.linger-time = 0 # default value in milliseconds
+
+data-reader-config.data-input-path = [
+        "/home/user/Benchmark1/tools/datasender/src/main/resources/high_tech_manufacturing_data.csv",
+        "/home/user/Benchmark1/tools/datasender/src/main/resources/high_tech_manufacturing_data.csv",
+        "/home/user/Benchmark1/tools/datasender/src/main/resources/high_tech_manufacturing_data.csv"
+]
+data-reader-config.read-in-ram = false

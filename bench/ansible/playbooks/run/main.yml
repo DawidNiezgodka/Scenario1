@@ -1,0 +1,51 @@
+---
+
+- hosts: data-sender
+  tasks:
+    - name: "Set Topic Prefix."
+      import_tasks: ../roles/benchmark/tasks/set_topic_prefix.yml
+      vars:
+        home: = "~"
+        prefix: "{{ topic_prefix }}"
+      when: topic_prefix is defined
+    - name: "Set Benchmark Run"
+      import_tasks: ../roles/benchmark/tasks/set_benchmark_run.yml
+      vars:
+        home: = "~"
+        run: "{{ benchmark_run }}"
+      when: benchmark_run is defined
+    - name: "Set Sending Interval"
+      import_tasks: ../roles/benchmark/tasks/set_sending_interval.yml
+      vars:
+          home: = "~"
+          interval: "{{ sending_interval }}"
+      when: sending_interval is defined
+    - name: "Set Scale Factor"
+      import_tasks: ../roles/benchmark/tasks/set_scale_factor.yml
+      vars:
+          home: = "~"
+          sf: "{{ scale_factor }}"
+      when: scale_factor is defined
+
+- hosts: data-sender
+  vars_files:
+    - ../group_vars/all
+  tasks:
+    - name: "Compile Project"
+      import_tasks: ../roles/benchmark/tasks/compile.yml
+      vars:
+        home: = "~"
+      when: compile_project != 'no'
+    - name: "Create Kafka Topics"
+      import_tasks: ../roles/kafka-topic/tasks/create.yml
+    - name: "Reassign Kafka Topics"
+      import_tasks: ../roles/kafka-topic/tasks/reassign.yml
+    - name: "Reassign Verify Kafka Topics"
+      import_tasks: ../roles/kafka-topic/tasks/reassignVerify.yml
+
+- hosts: data-sender
+  vars_files:
+    - ../group_vars/all
+  tasks:
+    - name: "Start Datasender"
+      import_tasks: ../roles/benchmark/tasks/start_datasender.yml

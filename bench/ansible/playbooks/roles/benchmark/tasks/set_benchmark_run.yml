@@ -1,0 +1,8 @@
+
+
+- name: replace run
+  replace:
+    path: '{{ benchmark_project }}/tools/commons/commons.conf'
+    regexp: '^benchmark-run = .*$'
+    replace: 'benchmark-run = {{ run }}'
+  when: run is defined

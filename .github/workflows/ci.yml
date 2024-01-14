@@ -1,0 +1,41 @@
+on:
+  workflow_call:
+jobs:
+  CI-test:
+    name: CI-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 11 for x64
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        architecture: x64
+
+    - name: Run mvn clean install
+      run: mvn --no-transfer-progress clean install
+
+    - name: run kafka script which adds kafka version to group_var/all
+      run: |
+        chmod +x ./scripts/kafka_version_extractor.sh
+        sudo ./scripts/kafka_version_extractor.sh
+
+    - name: print group var all
+      run: cat ./bench/ansible/group_vars/all
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: updated_all_file
+        path: ./bench/ansible/group_vars/all
+
+    - name: Pushes to another repository
+      uses: cpina/github-action-push-to-another-repository@main
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.TOKEN_TO_PUSH_TO_BENCH1 }}
+      with:
+        source-directory: './scripts'
+        destination-github-username: 'DawidNiezgodka'
+        destination-repository-name: 'Kafka-bench'
+        target-directory: './versions'
+        target-branch: main

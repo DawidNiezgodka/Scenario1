@@ -1,0 +1,17 @@
+topic-prefix = "KAFKA"
+benchmark-run = 1
+query-configs = [
+        {
+                name = "a"
+                number-of-streams = 3
+        }
+]
+
+sending-interval = 100
+sending-interval-time-unit = "NANOSECONDS"
+duration = 600
+duration-time-unit = "SECONDS" # Java Timeunit Enum
+
+kafka-bootstrap-servers = "{% for host in groups['kafka-nodes'] %}{{ hostvars[host]['ansible_host'] }}:9092{% if not loop.last %},{% endif %}{% endfor %}"
+zookeeper-servers = "{% for host in groups['zookeeper-nodes'] %}{{ hostvars[host]['ansible_host'] }}:2181{% if not loop.last %},{% endif %}{% endfor %}"
+

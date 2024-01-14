@@ -1,0 +1,23 @@
+---
+- name: Checkout and Configure data-sender
+  hosts: data-sender
+  become: yes
+  tasks:
+
+    - name: Checkout GitHub Repository
+      git:
+        repo: '{{ git_repo }}'
+        dest: '{{ benchmark_project }}'
+        clone: yes
+        update: yes
+        force: yes
+
+    - name: Generate data-sender.conf from Template
+      template:
+        src: '{{playbook_dir}}/templates/data-sender.conf.j2'
+        dest: '{{ benchmark_project }}/tools/datasender/datasender.conf'
+
+    - name: Generate commons.conf from Template
+      template:
+        src: '{{playbook_dir}}/templates/commons.conf.j2'
+        dest: '{{ benchmark_project }}/tools/commons/commons.conf'
