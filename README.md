@@ -1,10 +1,6 @@
 # Scenario1
 The first scenario for validating the CB framework
 
-## Caveat
-This is a preview-only repository. To conduct the test, it is necessary to set the appropriate secrets, have a project, and modify certain variables, the values of which have been removed for security reasons.
-
-
 This repository contains the code for the first benchmark for evaluating the
 [CB-Framework](https://github.com/DawidNiezgodka/CB-Framework).
 
@@ -17,3 +13,11 @@ Hong Kong, 2020, pp. 641-648, doi: 10.1109/ICPADS51040.2020.00089.
 The accompanying code (https://github.com/guenter-hesse/KafkaAnalysisTools)
 was used as a basis for implementing the benchmark.
 In this repository, Ansible playbooks from the linked repo are used (in a modified version) to configure and execute the benchmark.
+
+*Note*: The template for the graph (`index.html`) should normally be put on a separate branch where the benchmark data is saved.
+
+## Caveat
+This is a preview-only repository. To conduct the test, it is necessary to set the appropriate secrets, have a project, and modify certain variables, the values of which have been removed for security reasons.
+
+
+
